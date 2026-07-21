@@ -13,7 +13,7 @@
 if (!defined('ABSPATH')) exit;
 
 // Define plugin constants
-define('WPMCP_VERSION', '2.3.0');
+define('WPMCP_VERSION', '2.4.0');
 define('WPMCP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPMCP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -26,6 +26,7 @@ require_once WPMCP_PLUGIN_DIR . 'includes/database.php';
 require_once WPMCP_PLUGIN_DIR . 'includes/security.php';
 require_once WPMCP_PLUGIN_DIR . 'includes/performance.php';
 require_once WPMCP_PLUGIN_DIR . 'includes/cli.php';
+require_once WPMCP_PLUGIN_DIR . 'includes/settings.php';
 
 // Initialize all modules
 new WPMCP_Authentication();

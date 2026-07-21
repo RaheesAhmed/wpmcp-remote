@@ -19,6 +19,7 @@ class Site(BaseModel):
     url: HttpUrl
     username: str
     app_password: SecretStr
+    api_token: SecretStr | None = None
     is_default: bool = False
 
     @property
@@ -72,6 +73,7 @@ class SiteRegistry:
                 base_url=site.base_url,
                 username=site.username,
                 app_password=site.app_password.get_secret_value(),
+                api_token=site.api_token.get_secret_value() if site.api_token else None,
             )
         return self._clients[resolved]
 
@@ -96,6 +98,7 @@ def _load_sites_from_env() -> list[Site]:
         url = env.get(f"WPMCP_SITE_{alias.upper()}_URL")
         username = env.get(f"WPMCP_SITE_{alias.upper()}_USERNAME")
         password = env.get(f"WPMCP_SITE_{alias.upper()}_PASSWORD")
+        token = env.get(f"WPMCP_SITE_{alias.upper()}_TOKEN")
         if not (url and username and password):
             continue
         sites.append(
@@ -104,6 +107,7 @@ def _load_sites_from_env() -> list[Site]:
                 url=url,
                 username=username,
                 app_password=password,
+                api_token=token or None,
                 is_default=(alias == settings.default_site),
             )
         )
