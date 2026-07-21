@@ -47,8 +47,8 @@ Every result comes back as a structured `WpResult` envelope that the generative 
 ### 1. Install (with `uv`)
 
 ```bash
-git clone <your-repo-url> wpmcp
-cd wpmcp
+git clone https://github.com/RaheesAhmed/wpmcp-remote.git
+cd wpmcp-remote
 uv sync
 ```
 

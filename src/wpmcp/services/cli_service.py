@@ -64,18 +64,24 @@ def _validate(command: str) -> str:
     if not tokens:
         raise SecurityError("Command is empty.")
 
-    prefix = " ".join(tokens[:2]).lower()
-    # Handle single-token commands like "core" alone? WP-CLI needs a subcommand;
-    # every allowlist entry is two tokens, so require at least two.
     if len(tokens) < 2:
         raise SecurityError(
             f"Command '{tokens[0]}' is not on the allowlist. "
             f"Use wp_discover or list_allowed_commands to see permitted commands."
         )
 
-    if prefix not in ALLOWED_COMMANDS:
+    # An allowlist entry may be 2 tokens (e.g. "plugin install") or 3 tokens
+    # (e.g. "cron event run"). A command matches when an entry's tokens are an
+    # exact prefix of the command's tokens — so "cron event list" matches the
+    # "cron event list" entry, but "cron event" alone does not.
+    prefix_preview = " ".join(tokens[:3])
+    matched = any(
+        len(allowed.split()) >= 2 and tokens[: len(allowed.split())] == allowed.split()
+        for allowed in ALLOWED_COMMANDS
+    )
+    if not matched:
         raise SecurityError(
-            f"Command '{prefix}' is not on the allowlist. "
+            f"Command '{prefix_preview}' is not on the allowlist. "
             f"Permitted: {', '.join(ALLOWED_COMMANDS)}."
         )
     return raw

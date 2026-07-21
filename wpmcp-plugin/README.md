@@ -1,17 +1,21 @@
 # WordPress MCP Server Plugin
 
-**Version:** 2.0.0  
+**Version:** 2.3.0  
 **Requires WordPress:** 5.0+  
-**Requires PHP:** 7.2+  
+**Requires PHP:** 7.4+  
 **License:** MIT
 
 ## Overview
 
-Single comprehensive plugin that enables all WordPress MCP Server features:
-- ✅ File System Operations (read, write, delete, copy, move)
+The companion plugin for the WPMCP remote MCP server. It exposes the extended `wpmcp/v1` REST endpoints that the server calls for capabilities not covered by the core WordPress REST API:
+
+- ✅ File System Operations (read, write, delete, copy, move, list, info)
 - ✅ Shortcode Management (list, execute)
-- ✅ Cron Job Scheduling (list, schedule, run)
-- ✅ Widget Management (via WordPress REST API)
+- ✅ Cron Job Scheduling (list, schedule, unschedule, run)
+- ✅ Database Operations (tables, SELECT-only queries, options)
+- ✅ Security Monitoring (site health, updates, debug log, core integrity, system info)
+- ✅ Performance Optimization (cache, optimize, cleanup, flush rewrites)
+- ✅ WP-CLI Execution (whitelisted commands only)
 
 ## Quick Installation
 
@@ -102,6 +106,30 @@ wp plugin activate wpmcp-plugin
 - `/wp/v2/widget-types` - Available widget types
 
 **Note:** Widgets use standard WordPress REST API endpoints.
+
+### WP-CLI Execution
+
+**Endpoints:**
+- `POST /wp-json/wpmcp/v1/cli/run` - Run a whitelisted WP-CLI command
+- `GET /wp-json/wpmcp/v1/cli/allowed` - List permitted commands
+
+**Allowlist** (two- or three-token subcommands):
+`plugin install|update|delete|activate|deactivate`, `theme install|update|delete|activate`, `core update|update-db|version`, `cache flush`, `cron event run|list`, `db export|size`, `user list`, `option get|update`.
+
+**Safety:**
+- The remote MCP server validates the command before forwarding; this plugin re-validates server-side as defense in depth.
+- Shell metacharacters (`; | & $ \` > <`) are rejected — WP-CLI arguments only.
+- Commands run with array-form `proc_open` (PHP 7.4+) which bypasses the shell entirely, so no metacharacter can be interpreted.
+- Every attempt is appended to `wp-content/wpmcp-logs/cli-audit.log`.
+- Requires `manage_options` capability.
+
+**Configure the WP-CLI binary** (if `wp` is not on the server's PATH) via a filter in your theme's `functions.php`:
+
+```php
+add_filter('wpmcp_wp_binary', function () {
+    return ['php', '/usr/local/bin/wp-cli.phar'];
+});
+```
 
 ## Configuration
 
@@ -218,10 +246,17 @@ Authorization: Basic {base64(username:password)}
 ### Plugin Not Working
 - Check plugin is activated
 - Verify WordPress version 5.0+
-- Ensure PHP 7.2+
+- Ensure PHP 7.4+
 - Check REST API is enabled
 
 ## Changelog
+
+### Version 2.3.0 (2026-07-22)
+- Added WP-CLI execution module (`/cli/run`, `/cli/allowed`) with strict allowlist, metacharacter rejection, shell-bypassing execution, and an audit log.
+- Bumped PHP requirement to 7.4+ for array-form `proc_open`.
+
+### Version 2.2.0
+- Added database, security, and performance modules.
 
 ### Version 2.0.0 (2024-10-25)
 - Complete rewrite combining all features
