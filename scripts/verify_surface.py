@@ -1,0 +1,44 @@
+"""Ad-hoc verification of the WPMCP server surface (not part of the package)."""
+
+import asyncio
+
+from fastmcp import Client
+
+import wpmcp.server as server
+
+
+async def main() -> None:
+    async with Client(server.mcp) as client:
+        tools = await client.list_tools()
+        print(f"TOOLS ({len(tools)}):")
+        for tool in tools:
+            print(f"  - {tool.name}: {tool.description}".rstrip())
+
+        resources = await client.list_resources()
+        print(f"\nRESOURCES ({len(resources)}):")
+        for resource in resources:
+            print(f"  - {resource.uri}: {resource.name}")
+
+        prompts = await client.list_prompts()
+        print(f"\nPROMPTS ({len(prompts)}):")
+        for prompt in prompts:
+            print(f"  - {prompt.name}: {prompt.description}")
+
+        discovery = await client.call_tool("wp_discover", {})
+        sc = discovery.structured_content
+        domains = sc["result"] if isinstance(sc, dict) and "result" in sc else sc
+        total_actions = sum(len(d.get("actions", [])) for d in domains)
+        print(f"\nwp_discover: {len(domains)} domain catalogs, {total_actions} total actions")
+        for d in domains:
+            print(f"  - {d.get('tool')}: {len(d.get('actions', []))} actions")
+
+        ui = await client.read_resource("ui://wpmcp/console-v1.html")
+        ui_items = ui if isinstance(ui, list) else [ui]
+        ui_text = ""
+        for item in ui_items:
+            ui_text += getattr(item, "text", "") or ""
+        print(f"\nUI resource: {len(ui_text)} chars, styles_injected={('__WPMCP_STYLES__' not in ui_text)}, script_injected={('__WPMCP_SCRIPT__' not in ui_text)}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
