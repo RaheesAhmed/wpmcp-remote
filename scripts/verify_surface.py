@@ -32,13 +32,6 @@ async def main() -> None:
         for d in domains:
             print(f"  - {d.get('tool')}: {len(d.get('actions', []))} actions")
 
-        ui = await client.read_resource("ui://wpmcp/console-v1.html")
-        ui_items = ui if isinstance(ui, list) else [ui]
-        ui_text = ""
-        for item in ui_items:
-            ui_text += getattr(item, "text", "") or ""
-        print(f"\nUI resource: {len(ui_text)} chars, styles_injected={('__WPMCP_STYLES__' not in ui_text)}, script_injected={('__WPMCP_SCRIPT__' not in ui_text)}")
-
 
 if __name__ == "__main__":
     asyncio.run(main())

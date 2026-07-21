@@ -16,7 +16,6 @@ from fastmcp.exceptions import ToolError
 from wpmcp.core.exceptions import WpMcpError
 from wpmcp.domain.models import DomainCatalog, WpResult
 from wpmcp.tools.annotations import GATEWAY_TOOL, READ_ONLY_TOOL
-from wpmcp.tools.app_config import WP_APP_CONFIG
 from wpmcp.wordpress.multisite import SiteRegistry
 
 _SERVICES: dict[str, tuple[str, str, str]] = {
@@ -42,11 +41,11 @@ _SERVICES: dict[str, tuple[str, str, str]] = {
 
 
 def register_gateway_tools(mcp: FastMCP, services: dict[str, Any], registry: SiteRegistry) -> None:
-    """Register one dispatch tool per domain, all sharing the generative UI."""
+    """Register one dispatch tool per domain."""
 
     for domain, (tool_name, title, description) in _SERVICES.items():
         service = services[domain]
-        _register_one(mcp, tool_name, title, description, domain, service)
+        _register_one(mcp, tool_name, title, description, domain, service, registry)
 
     @mcp.tool(
         title="WordPress discovery",
@@ -55,7 +54,6 @@ def register_gateway_tools(mcp: FastMCP, services: dict[str, Any], registry: Sit
             "Call this first to learn available actions before dispatching."
         ),
         annotations=READ_ONLY_TOOL,
-        app=WP_APP_CONFIG,
     )
     async def wp_discover(site: str | None = None) -> list[DomainCatalog]:
         """List every gateway tool and the actions it supports."""
@@ -81,6 +79,7 @@ def _register_one(
     description: str,
     domain: str,
     service: Any,
+    registry: SiteRegistry,
 ) -> None:
     """Register a single dispatch tool bound to ``service``."""
 
@@ -89,7 +88,6 @@ def _register_one(
         title=title,
         description=description,
         annotations=GATEWAY_TOOL,
-        app=WP_APP_CONFIG,
     )
     async def gateway(
         action: str,

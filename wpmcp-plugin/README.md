@@ -1,6 +1,6 @@
 # WordPress MCP Server Plugin
 
-**Version:** 2.3.0  
+**Version:** 2.4.0  
 **Requires WordPress:** 5.0+  
 **Requires PHP:** 7.4+  
 **License:** MIT
@@ -17,13 +17,21 @@ The companion plugin for the WPMCP remote MCP server. It exposes the extended `w
 - ✅ Performance Optimization (cache, optimize, cleanup, flush rewrites)
 - ✅ WP-CLI Execution (whitelisted commands only)
 
+## Quick Setup (recommended — 3 steps, no code)
+
+1. **Install & activate** the plugin (upload the zip via **Plugins → Add New → Upload Plugin**, or `wp plugin activate wpmcp-plugin`).
+2. Open **WPMCP** in the admin sidebar → click **Generate connection**. Copy the token shown (shown once).
+3. Paste the **Cursor config** block from the same page into **Settings → MCP → Add custom MCP**. Done.
+
+No `wp-config.php` editing, no Python, no `.env`. The token is stored hashed in the database and validated in constant time over HTTPS. Self-hosters can change the **MCP server URL** on the same page and use the provided `.env` block.
+
 ## Quick Installation
 
 ### Method 1: Upload via WordPress Admin
 
-1. Download `wpmcp-plugin.php`
+1. Download the `wpmcp-plugin` folder as a zip
 2. Go to **WordPress Admin → Plugins → Add New → Upload Plugin**
-3. Upload `wpmcp-plugin.php`
+3. Upload the zip
 4. Click **Activate**
 
 ### Method 2: Manual Upload
@@ -162,6 +170,32 @@ wp-content/wpmcp-backups/
 
 ## Security
 
+### Authentication (production)
+
+The plugin supports two authentication mechanisms, in order of preference:
+
+**1. Bearer API token (recommended for remote/headless use)**
+
+Easiest: open **WPMCP** in the admin sidebar → **Generate connection**. The token is created and stored hashed in the database; copy it (shown once). No file editing.
+
+Power users can instead define constants in `wp-config.php` (above the `/* That's all, stop editing! */` line), which override the database value:
+
+```php
+define( 'WPMCP_API_TOKEN', 'long-random-shared-secret' );
+define( 'WPMCP_API_USER', 'admin' ); // login of the WP user the token acts as
+// define( 'WPMCP_ALLOW_INSECURE', true ); // only for local HTTP testing
+```
+
+The MCP server sends `Authorization: Bearer <token>`. The plugin validates it in constant time (`hash_equals` over SHA-256), only over HTTPS, and acts as the configured user for capability checks. Per-IP rate limiting locks out after 5 failed attempts for 15 minutes. All decisions are logged to `wp-content/wpmcp-logs/auth-audit.log`.
+
+**2. WordPress Application Passwords (fallback)**
+
+Standard Basic Auth with a per-user application password, handled natively by WordPress core 5.6+. Create one at **Users → Profile → Application Passwords**. The user's **main login password is never accepted** over the REST API — the legacy Basic Auth handler that allowed it has been removed.
+
+### Namespace guard
+
+Every `/wpmcp/v1/*` route rejects unauthenticated requests with HTTP 401 before any route logic runs.
+
 ### File System Protection
 
 **Whitelist Approach:**
@@ -250,6 +284,10 @@ Authorization: Basic {base64(username:password)}
 - Check REST API is enabled
 
 ## Changelog
+
+### Version 2.4.0 (2026-07-22)
+- Added one-click **WPMCP** admin page: generate a bearer token (stored hashed), copy Cursor config and self-host `.env` blocks. No `wp-config.php` editing required.
+- Authentication now reads the token hash from `wp_options` (with `wp-config.php` constant override for power users).
 
 ### Version 2.3.0 (2026-07-22)
 - Added WP-CLI execution module (`/cli/run`, `/cli/allowed`) with strict allowlist, metacharacter rejection, shell-bypassing execution, and an audit log.

@@ -79,6 +79,20 @@ WPMCP_SITE_PRIMARY_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx
 
 `WPMCP_SITE_PRIMARY_PASSWORD` is a **WordPress Application Password** — generate one in WordPress at **Users → Profile → Application Passwords**. The WordPress user needs capabilities appropriate to the actions you want to run (e.g. `edit_posts`, `manage_options`, `edit_themes`, `edit_plugins`).
 
+### 2b. Install the companion plugin (one click)
+
+The plugin exposes the extended endpoints (files, database, themes, plugins, security, performance, SEO, backups, WP-CLI). Without it, only core content actions work.
+
+1. In WordPress admin: **Plugins → Add New → Upload Plugin** → upload `wpmcp-plugin.zip` → **Activate**.
+2. Open the new **WPMCP** item in the admin sidebar → click **Generate connection** → copy the token (shown once).
+3. Paste the **Cursor config** block from that page into your client. Done — no `wp-config.php` editing.
+
+Prefer the command line?
+
+```bash
+wp plugin install /path/to/wpmcp-plugin.zip --activate
+```
+
 ### 3. Run the remote server
 
 ```bash

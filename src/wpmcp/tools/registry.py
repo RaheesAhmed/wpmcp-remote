@@ -7,7 +7,6 @@ from fastmcp import FastMCP
 from wpmcp.prompts.workflow_prompts import register_workflow_prompts
 from wpmcp.resources.catalog import register_catalog_resources
 from wpmcp.tools.gateway_tools import register_gateway_tools
-from wpmcp.ui.resource import register_wp_ui_resource
 from wpmcp.wordpress.multisite import SiteRegistry
 
 
@@ -52,10 +51,9 @@ def _build_services(registry: SiteRegistry) -> dict[str, object]:
 
 
 def register_all_tools(mcp: FastMCP, registry: SiteRegistry) -> None:
-    """Register services, gateway tools, resources, prompts, and the UI."""
+    """Register services, gateway tools, resources, and prompts."""
 
     services = _build_services(registry)
     register_gateway_tools(mcp, services, registry)
     register_catalog_resources(mcp, registry, services)
     register_workflow_prompts(mcp)
-    register_wp_ui_resource(mcp)

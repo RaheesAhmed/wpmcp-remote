@@ -1,4 +1,4 @@
-"""Pydantic models exchanged between services, tools, and the generative UI."""
+"""Pydantic models exchanged between services and tools."""
 
 from __future__ import annotations
 
@@ -18,9 +18,8 @@ class DomainModel(BaseModel):
 class WpResult(DomainModel):
     """Unified envelope returned by every WPMCP dispatch tool.
 
-    The generative UI inspects ``view`` to choose a renderer and reads
-    ``data`` for the payload. ``meta`` carries counts, pagination, and
-    auxiliary context.
+    The ``view`` field identifies the shape of the payload in ``data``.
+    ``meta`` carries counts, pagination, and auxiliary context.
     """
 
     ok: bool = True

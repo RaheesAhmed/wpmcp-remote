@@ -15,7 +15,7 @@ class PostStatus(StrEnum):
 
 
 class View(StrEnum):
-    """Discriminator the generative UI uses to pick a renderer."""
+    """Discriminator identifying the shape of the result payload."""
 
     DASHBOARD = "dashboard"
     POSTS = "posts"

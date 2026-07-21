@@ -26,7 +26,6 @@ def register_catalog_resources(mcp: FastMCP, registry: SiteRegistry, services: d
             "transport": "streamable-http",
             "model": "namespaced dispatch — 17 gateway tools, 190 actions",
             "multisite": True,
-            "generative_ui": "ui://wpmcp/console-v1.html",
             "safety": [
                 "WordPress Application Passwords per site",
                 "filesystem paths restricted to themes/plugins/uploads/mu-plugins",

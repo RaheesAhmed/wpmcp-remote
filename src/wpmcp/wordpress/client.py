@@ -23,18 +23,24 @@ class WordPressClient:
     Application Password.
     """
 
-    def __init__(self, base_url: str, username: str, app_password: str) -> None:
+    def __init__(self, base_url: str, username: str = "", app_password: str | None = None, api_token: str | None = None) -> None:
+        if not api_token and not (username and app_password):
+            raise ValueError("WordPressClient requires either an api_token or username + app_password.")
         self._base_url = base_url.rstrip("/")
-        self._auth = httpx.BasicAuth(username, app_password)
+        self._api_token = api_token
+        self._auth = None if api_token else httpx.BasicAuth(username, app_password)
+        headers = {
+            "Accept": _JSON,
+            "User-Agent": "WPMCP/1.0 (+remote-mcp)",
+        }
+        if api_token:
+            headers["Authorization"] = f"Bearer {api_token}"
         self._client = httpx.AsyncClient(
             base_url=self._base_url,
             auth=self._auth,
             timeout=_TIMEOUT,
             limits=_LIMITS,
-            headers={
-                "Accept": _JSON,
-                "User-Agent": "WPMCP/1.0 (+remote-mcp)",
-            },
+            headers=headers,
             follow_redirects=True,
         )
 
@@ -78,8 +84,9 @@ class WordPressClient:
         try:
             return response.json()
         except ValueError as error:
+            snippet = response.text[:200].replace("\n", " ")
             raise WordPressApiError(
-                f"WordPress returned a non-JSON response for {url}",
+                f"WordPress returned a non-JSON response (HTTP {response.status_code}) for {url}: {snippet!r}",
                 status_code=response.status_code,
                 endpoint=url,
             ) from error
