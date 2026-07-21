@@ -1,6 +1,6 @@
 # WPMCP — Remote WordPress MCP Server
 
-Give any AI agent **complete, multisite control of WordPress** through one fast, secure remote MCP server. Built with Python + [FastMCP](https://gofastmcp.com), served over Streamable HTTP, with a premium **generative UI** that renders every result as an interactive console — not raw text.
+Give any AI agent **complete, multisite control of WordPress** through one fast, secure remote MCP server. Built with Python + [FastMCP](https://gofastmcp.com), served over Streamable HTTP, returning clean structured JSON — no UI, just plain data like any normal MCP server.
 
 Connect Cursor, Claude Desktop, Cline, or any MCP-compatible client to a single URL and manage content, themes, plugins, files, database, WooCommerce, SEO, security, backups, and an entire multisite network in plain language.
 
@@ -10,10 +10,10 @@ Connect Cursor, Claude Desktop, Cline, or any MCP-compatible client to a single 
 
 - **Remote & multi-client** — one Streamable HTTP endpoint serves many AI clients at once.
 - **Multisite native** — manage one site or a fleet from the same server; switch sites per call.
-- **Generative UI** — every tool result renders in a polished, interactive console (MCP Apps) with action dialogs that call back into the server.
+- **Plain structured JSON** — every tool returns a clean `WpResult` envelope. No generated UI, no client-side rendering — just data, like a normal MCP server.
 - **Compact tool surface** — 160+ WordPress actions exposed through **17 dispatch tools**, so the model's context window stays small instead of filling with hundreds of schemas.
 - **Secure by default** — bearer-token auth for the server, WordPress Application Passwords per site, filesystem allow-listing, SELECT-only SQL, destructive-action flags.
-- **Fast** — async `httpx` with connection pooling, cached settings, concurrent UI loading.
+- **Fast** — async `httpx` with connection pooling and cached settings.
 
 ---
 
@@ -33,7 +33,7 @@ wp_sites
 
 Each gateway takes three arguments — `action`, optional `site`, and `params` — and dispatches to the right WordPress operation. The model calls `wp_discover` once to learn every available action, then dispatches. **Full WordPress power, a fraction of the context cost.**
 
-Every result comes back as a structured `WpResult` envelope that the generative UI renders automatically:
+Every result comes back as a structured `WpResult` envelope:
 
 ```json
 { "ok": true, "action": "create_post", "domain": "content", "site": "primary",
@@ -237,9 +237,24 @@ A few examples of what you can say:
 
 ---
 
-## The generative UI
+## Result format
 
-Every tool result renders inside an interactive console (served as the `ui://wpmcp/console-v1.html` MCP resource). The UI switches renderers based on the result's `view` field — dashboards, post tables, media galleries, plugin grids, theme inspectors, database tables, WooCommerce orders, cron jobs, backups, and more — with quick-action buttons that open forms and call back into the server. Supported clients render this automatically; text-only clients still get the full structured JSON.
+Every tool returns a plain structured `WpResult` JSON envelope — no UI, no client-side rendering, just data:
+
+```json
+{
+  "ok": true,
+  "action": "get_plugins",
+  "domain": "plugins",
+  "site": "primary",
+  "view": "plugins",
+  "data": { "plugins": [ { "name": "akismet", "status": "active" } ] },
+  "message": "2 plugins found.",
+  "meta": { "total": 2 }
+}
+```
+
+`ok` is `false` on errors, with `message` explaining the failure. `view` identifies the shape of `data` so the model can reason about it; `meta` carries counts and pagination.
 
 ---
 

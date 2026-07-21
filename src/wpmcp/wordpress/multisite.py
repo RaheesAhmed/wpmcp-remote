@@ -22,8 +22,13 @@ class Site(BaseModel):
 
     alias: str
     url: HttpUrl
+<<<<<<< HEAD
     username: str = ""
     app_password: SecretStr | None = None
+=======
+    username: str
+    app_password: SecretStr
+>>>>>>> d3b7de4aa03328e99e3e4286158839f805e0de37
     api_token: SecretStr | None = None
     is_default: bool = False
 
@@ -133,16 +138,24 @@ def _load_sites_from_env() -> list[Site]:
         username = env.get(f"WPMCP_SITE_{alias.upper()}_USERNAME", "")
         password = env.get(f"WPMCP_SITE_{alias.upper()}_PASSWORD")
         token = env.get(f"WPMCP_SITE_{alias.upper()}_TOKEN")
+<<<<<<< HEAD
         if not url:
             continue
         if not (token or (username and password)):
+=======
+        if not (url and username and password):
+>>>>>>> d3b7de4aa03328e99e3e4286158839f805e0de37
             continue
         sites.append(
             Site(
                 alias=alias,
                 url=url,
                 username=username,
+<<<<<<< HEAD
                 app_password=password or None,
+=======
+                app_password=password,
+>>>>>>> d3b7de4aa03328e99e3e4286158839f805e0de37
                 api_token=token or None,
                 is_default=(alias == settings.default_site),
             )

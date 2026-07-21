@@ -23,12 +23,19 @@ class WordPressClient:
     Application Password.
     """
 
+<<<<<<< HEAD
     def __init__(self, base_url: str, username: str = "", app_password: str | None = None, api_token: str | None = None) -> None:
         if not api_token and not (username and app_password):
             raise ValueError("WordPressClient requires either an api_token or username + app_password.")
         self._base_url = base_url.rstrip("/")
         self._api_token = api_token
         self._auth = None if api_token else httpx.BasicAuth(username, app_password)
+=======
+    def __init__(self, base_url: str, username: str, app_password: str, api_token: str | None = None) -> None:
+        self._base_url = base_url.rstrip("/")
+        self._api_token = api_token
+        self._auth = httpx.BasicAuth(username, app_password) if not api_token else None
+>>>>>>> d3b7de4aa03328e99e3e4286158839f805e0de37
         headers = {
             "Accept": _JSON,
             "User-Agent": "WPMCP/1.0 (+remote-mcp)",
