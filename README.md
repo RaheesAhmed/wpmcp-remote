@@ -277,10 +277,9 @@ src/wpmcp/
   wordpress/           async httpx client (pooling), endpoint map, multisite registry
   domain/              WpResult envelope, View enum, action catalog models
   services/            one service per WordPress domain (real REST calls)
-  tools/               17 gateway tools, dispatch, annotations, app config
+  tools/               17 gateway tools, dispatch, annotations
   resources/           wp://capabilities, wp://action-catalog, wp://sites
   prompts/             reusable workflow prompts
-  ui/                  console.html + CSS/JS renderers, registered as an MCP resource
 scripts/verify_surface.py   lists tools, resources, prompts, and the action catalog
 ```
 
@@ -294,7 +293,7 @@ Verify the server surface without a live WordPress connection:
 uv run python scripts/verify_surface.py
 ```
 
-This prints every tool, resource, prompt, the full action catalog, and confirms the UI resource renders.
+This prints every tool, resource, prompt, and the full action catalog.
 
 ---
 
